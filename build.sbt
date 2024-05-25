@@ -30,8 +30,18 @@ lazy val circe = (project in file("circe"))
   )
   .dependsOn(optics)
 
+lazy val spray = (project in file("spray"))
+  .settings(
+    libraryDependencies ++= Seq(
+      "io.spray"            %% "spray-json"        % "1.3.6",
+      "io.github.greyplane" %% "spray-json-optics" % "0.1.7",
+      "org.scalameta"       %% "munit"             % "1.0.0" % Test
+    )
+  )
+  .dependsOn(optics)
+
 lazy val root = (project in file("."))
   .settings(
     name := "jsonpath4s"
   )
-  .aggregate(core, optics, circe)
+  .aggregate(core, optics, circe, spray)
