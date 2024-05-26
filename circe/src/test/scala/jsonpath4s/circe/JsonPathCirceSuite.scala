@@ -22,7 +22,7 @@ class JsonPathCirceSuite extends munit.FunSuite {
     parse(json).map2(JsonPathParser.quickRun(jsonPath))(f)
   }
 
-  test("test") {
+  test("children segment") {
 
     inParseResult("""{ "a": { "b" : 1 } }""", """$.a.b""")(assertCompileResult(Set(Json.fromInt(1))))
 
