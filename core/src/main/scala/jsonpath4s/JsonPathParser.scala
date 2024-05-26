@@ -108,7 +108,7 @@ object JsonPathParser {
   def parse(input: String): Either[JsonPathError, JsonPath] = {
     val parser = new JsonPathParser(input)
 
-    parser.jsonPath.run().left.map(err => JsonPathError.ParseError(parser.formatError(err)))
+    parser.jsonPath.run().left.map(err => JsonPathError.ParsingError(parser.formatError(err)))
   }
 
   def unsafeParse(input: String): JsonPath = {
