@@ -18,14 +18,24 @@ class JsonPathCirceSuite extends munit.FunSuite {
     assertEquals(values.toSet, expect)
   }
 
+  private def assertCompileResultDup(expect: List[Json])(json: Json, jsonPath: JsonPath)(implicit loc: Location): Unit = {
+    val values = jsonPath.compile.getAll(json).groupBy(identity)
+
+    assertEquals(values, expect.groupBy(identity))
+  }
+
   private def inParseResult(json: String, jsonPath: String)(f: (Json, JsonPath) => Unit) = {
     parse(json).map2(JsonPathParser.parse(jsonPath))(f)
   }
 
-  test("children segment") {
+  test("child segment") {
+    val json = """["a", "b", "c", "d", "e", "f", "g"]"""
 
-    inParseResult("""{ "a": { "b" : 1 } }""", """$.a.b""")(assertCompileResult(Set(Json.fromInt(1))))
+    inParseResult(json, """$[0,3]""")(assertCompileResult(Set(Json.fromString("a"), Json.fromString("d"))))
 
+    inParseResult(json, """$[0:2:5]""")(assertCompileResult(Set(Json.fromString("a"), Json.fromString("b"), Json.fromString("f"))))
+
+    inParseResult(json, """$[0,0]""")(assertCompileResultDup(List(Json.fromString("a"), Json.fromString("a"))))
   }
 
   test("descendents segment") {
@@ -49,9 +59,9 @@ class JsonPathCirceSuite extends munit.FunSuite {
 
     inParseResult(json, """$..o""")(assertCompileResult(Set(Json.obj("j" -> Json.fromInt(1), "k" -> Json.fromInt(2)))))
 
-    inParseResult(json, """$.o..[*,*]""") { (json, jsonPath) =>
-      println(jsonPath.compile.getAll(json))
-    }
+    inParseResult(json, """$.o..[*,*]""")(assertCompileResultDup(List(Json.fromInt(1), Json.fromInt(2), Json.fromInt(1), Json.fromInt(2))))
+
+    inParseResult(json, """$.a..[0,1]""")(assertCompileResult(Set(Json.fromInt(5), Json.fromInt(3), Json.obj("j" -> Json.fromInt(4)), Json.obj("k" -> Json.fromInt(6)))))
   }
 
 }
