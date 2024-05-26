@@ -1,14 +1,15 @@
-package jsonpath4s.circe
+package jsonpath4s.json.circe
 
-import io.circe.Json
-import jsonpath4s.{JsonPath, JsonPathParser}
-import jsonpath4s.optics.*
-import jsonpath4s.circe.given
-import io.circe.parser.*
-import munit.Location
 import cats.implicits.given
+import io.circe.Json
 import io.circe.optics.all.*
+import io.circe.parser.*
+import jsonpath4s.json.circe
+import jsonpath4s.json.circe.given
+import jsonpath4s.optics.*
+import jsonpath4s.{JsonPath, JsonPathParser}
 import monocle.function.Plated
+import munit.Location
 
 class JsonPathCirceSuite extends munit.FunSuite {
 

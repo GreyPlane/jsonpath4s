@@ -1,29 +1,51 @@
 import jsonpath4s.Dependencies
 
-ThisBuild / version := "0.1.0-SNAPSHOT"
+import sbt.Keys.*
 
-ThisBuild / scalaVersion := "3.4.2"
+val buildSettings = List(
+  ThisBuild / scalaVersion := Dependencies.Scala3Version,
+  tlBaseVersion            := "0.1",
+  tlSonatypeUseLegacyHost  := false,
+  tlCiHeaderCheck          := false,
+  tlCiMimaBinaryIssueCheck := false,
+  tlMimaPreviousVersions   := Set.empty,
+  tlCiDocCheck             := false,
+  tlCiReleaseBranches      := Seq("master")
+)
 
-lazy val core = (project in file("core"))
+val publishSettings = List(
+  organization := "io.github.greyplane",
+  homepage     := Some(url("https://github.com/GreyPlane/jsonpath4s")),
+  licenses     := List(sbt.librarymanagement.License.MIT),
+  developers   := List(Developer("GreyPlane", "Liu Ji", "greyplane@gmail.com", url("https://github.com/GreyPlane")))
+)
+
+inThisBuild(buildSettings ++ publishSettings)
+
+lazy val core = crossProject(JVMPlatform, JSPlatform)
+  .in(file("core"))
+  .settings(moduleName := "jsonpath4s-core", name := "JsonPath4s Core", scalacOptions -= "-Xsource:3")
   .settings(Dependencies.core)
   .settings(Dependencies.coreTest)
 
-lazy val optics = (project in file("optics"))
+lazy val optics = crossProject(JVMPlatform, JSPlatform)
+  .in(file("optics"))
+  .settings(moduleName := "jsonpath4s-optics", name := "JsonPath4s Optics", scalacOptions -= "-Xsource:3")
   .settings(Dependencies.optics)
   .dependsOn(core)
 
-lazy val circe = (project in file("circe"))
+lazy val circe = crossProject(JVMPlatform, JSPlatform)
+  .in(file("circe"))
+  .settings(moduleName := "jsonpath4s-circe", name := "JsonPath4s Circe", scalacOptions -= "-Xsource:3")
   .settings(Dependencies.circe)
   .settings(Dependencies.circeTest)
   .dependsOn(optics)
 
 lazy val spray = (project in file("spray"))
+  .settings(moduleName := "jsonpath4s-spray-json", name := "JsonPath4s Spray Json", scalacOptions -= "-Xsource:3")
   .settings(Dependencies.spray)
   .settings(Dependencies.sprayTest)
-  .dependsOn(optics)
+  .dependsOn(optics.jvm)
 
-lazy val root = (project in file("."))
-  .settings(
-    name := "jsonpath4s"
-  )
+lazy val root = tlCrossRootProject
   .aggregate(core, optics, circe, spray)

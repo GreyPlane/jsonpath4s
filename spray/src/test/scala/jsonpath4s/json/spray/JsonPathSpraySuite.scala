@@ -1,8 +1,8 @@
-package jsonpath4s.spray
+package jsonpath4s.json.spray
 
 import jsonpath4s.JsonPathParser
 import jsonpath4s.optics.*
-import jsonpath4s.spray.given
+import jsonpath4s.json.spray.given
 import spray.json.*
 
 class JsonPathSpraySuite extends munit.FunSuite {

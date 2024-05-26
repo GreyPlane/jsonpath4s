@@ -1,9 +1,16 @@
 package jsonpath4s
 
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
+import org.portablescala.sbtplatformdeps.*
 
 object Dependencies {
+
+  import PlatformDepsPlugin.autoImport.*
+
+  val Scala213Version        = "2.13.14"
+  val Scala3Version          = "3.4.2"
+  val SupportedScalaVersions = Seq(Scala213Version, Scala3Version)
 
   object Versions {
     val munit           = "1.0.0"
@@ -17,11 +24,6 @@ object Dependencies {
   }
 
   object Compile {
-    val parboiled       = "org.parboiled"       %% "parboiled"         % Versions.parboiled
-    val catsCore        = "org.typelevel"       %% "cats-core"         % Versions.cats
-    val monocleCore     = "dev.optics"          %% "monocle-core"      % Versions.monocle
-    val circeCore       = "io.circe"            %% "circe-core"        % Versions.circe
-    val circeOptics     = "io.circe"            %% "circe-optics"      % Versions.circeOptics
     val sprayJson       = "io.spray"            %% "spray-json"        % Versions.sprayJson
     val sprayJsonOptics = "io.github.greyplane" %% "spray-json-optics" % Versions.sprayJsonOptics
   }
@@ -34,7 +36,7 @@ object Dependencies {
   private val deps = libraryDependencies
 
   val core = deps ++= Seq(
-    Compile.parboiled
+    "org.parboiled" %%% "parboiled" % Versions.parboiled
   )
 
   val coreTest = deps ++= Seq(
@@ -42,13 +44,13 @@ object Dependencies {
   )
 
   val optics = deps ++= Seq(
-    Compile.catsCore,
-    Compile.monocleCore
+    "org.typelevel" %%% "cats-core"    % Versions.cats,
+    "dev.optics"    %%% "monocle-core" % Versions.monocle
   )
 
   val circe = deps ++= Seq(
-    Compile.circeCore,
-    Compile.circeOptics
+    "io.circe" %%% "circe-core"   % Versions.circe,
+    "io.circe" %%% "circe-optics" % Versions.circeOptics
   )
 
   val circeTest = deps ++= Seq(

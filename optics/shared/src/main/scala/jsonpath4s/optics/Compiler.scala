@@ -55,9 +55,3 @@ object Compiler {
   }
 
 }
-
-extension (jsonPath: JsonPath) {
-
-  def compile[Json](using compiler: Compiler[Json]): Fold[Json, Json] = compiler.compile(jsonPath)
-
-}

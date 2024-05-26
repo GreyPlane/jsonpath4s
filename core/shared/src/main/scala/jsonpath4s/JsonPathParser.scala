@@ -3,17 +3,19 @@ package jsonpath4s
 import org.parboiled2.*
 import org.parboiled2.support.hlist.*
 
+import scala.annotation.unused
+
 class JsonPathParser(val input: ParserInput) extends Parser {
 
-  private val slash            = '/'
-  private val backslash        = '\\'
-  private val singleQuote      = '\''
-  private val doubleQuote      = '\"'
-  private val segmentSeparator = '.'
-  private val sliceSeparator   = ':'
+  private val slash                    = '/'
+  private val backslash                = '\\'
+  private val singleQuote              = '\''
+  private val doubleQuote              = '\"'
+  @unused private val segmentSeparator = '.'
+  private val sliceSeparator           = ':'
 
-  private def root: Rule1[Identifier]    = rule { '$' ~ push(Identifier.Root) }
-  private def current: Rule1[Identifier] = rule { '@' ~ push(Identifier.Current) }
+  private def root: Rule1[Identifier]            = rule { '$' ~ push(Identifier.Root) }
+  @unused private def current: Rule1[Identifier] = rule { '@' ~ push(Identifier.Current) }
 
   private def esc = rule {
     backslash
