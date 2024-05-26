@@ -28,13 +28,25 @@ libraryDependencies ++= Seq(
 )
 ```
 
-3. Add imports as needed, for typical usage the following should suffice.
+3. If you're using Scala 2,
+   here's
+   the [extra config](https://docs.scala-lang.org/scala3/guides/migration/compatibility-classpath.html#a-scala-213-module-can-depend-on-a-scala-3-artifact)
+   required for Scala 2 to use Scala 3 artifact.
+
+ ```scala
+ ThisBuild / scalacOptions ++= Seq("-Ytasty-reader")
+
+// add cross config for every artifact
+("io.github.greyplane" %% "jsonpath4s-core" % "version").cross(CrossVersion.for2_13Use3)
+```
+
+4. Add imports as needed, for typical usage the following should suffice.
 
  ```scala
 import jsonpath4s._
 import jsonpath4s.optics._
-// if you're using spray-json, import jsonpath4s.spray._
-import jsonpath4s.circe._
+// if you're using spray-json, import jsonpath4s.json.spray._
+import jsonpath4s.json.circe._
 ```
 
 if you're using scala 3
@@ -42,7 +54,7 @@ if you're using scala 3
 ```scala 3
 import jsonpath4s.*
 import jsonpath4s.optics.*
-import jsonpath4s.circe.given
+import jsonpath4s.json.circe.given
 ```
 
 ## Introduction
