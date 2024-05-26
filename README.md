@@ -5,30 +5,28 @@ and use it freely.
 
 ## Roadmap
 
-- Support filter and function extension
+- Support filter and function extension.
 
 ## Usage
 
-1. Add core dependency
+1. Add core dependency.
 
-```scala
+ ```scala
 libraryDependencies ++= Seq(
   "io.github.greyplane" %% "jsonpath4s-core" % "version",
   "io.github.greyplane" %% "jsonpath4s-optics" % "version"
 )
 ```
 
-2. Add JSON library support as you needed, currently we supported `circe` and `spray-json`
+2. Add JSON library support as you needed, currently we supported `circe` and `spray-json`.
 
-for circe
-
-```scala
+ ```scala
 libraryDependencies ++= Seq(
   "io.github.greyplane" %% "jsonpath4s-circe" % "version"
 )
 ```
 
-for spray-json
+for circe.
 
 ```scala
 libraryDependencies ++= Seq(
@@ -36,9 +34,11 @@ libraryDependencies ++= Seq(
 )
 ```
 
-3. Add imports as needed, for typical usage the following should suffice
+for spray-json
 
-```scala
+3. Add imports as needed, for typical usage the following should suffice.
+
+ ```scala
 import jsonpath4s._
 import jsonpath4s.optics._
 // if you're using spray-json, import jsonpath4s.spray._
@@ -68,7 +68,8 @@ For safer option, you should use `JsonPathParser` directly.
 val maybeJsonPath: Either[JsonPathError, JsonPath] = JsonPathParser.parse("""$.a""")
 ```
 
-If you'd like use one JsonPath multiple times, you could just compile it and pass it around, after all, it's just a normal optic!
+If you'd like use one JsonPath multiple times, you could just compile it and pass it around, after all, it's just a
+normal optic!
 
 ```scala
 // make sure you've import json support library
