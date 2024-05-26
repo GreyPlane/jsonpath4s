@@ -6,11 +6,7 @@ import cats.implicits.given
 
 import cats.Monoid
 
-trait CombineAll {
-
-  def combineAll[A, T[_]: Traverse: Applicative](traversals: T[Traversal[A, A]]): Fold[A, A] = new Fold[A, A]:
-    def foldMap[M: Monoid](f: A => M)(s: A): M = {
-      Applicative[T].map(traversals)(_.foldMap(f)(s)).foldLeft(Monoid[M].empty)(_ combine _)
-    }
-
-}
+def combineAll[A, T[_]: Traverse: Applicative](traversals: T[Traversal[A, A]]): Fold[A, A] = new Fold[A, A]:
+  def foldMap[M: Monoid](f: A => M)(s: A): M = {
+    Applicative[T].map(traversals)(_.foldMap(f)(s)).foldLeft(Monoid[M].empty)(_ combine _)
+  }
