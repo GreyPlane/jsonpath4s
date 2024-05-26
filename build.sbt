@@ -1,42 +1,25 @@
+import jsonpath4s.Dependencies
+
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
 ThisBuild / scalaVersion := "3.4.2"
 
 lazy val core = (project in file("core"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.parboiled" %% "parboiled" % "2.5.1",
-      "org.scalameta" %% "munit"     % "1.0.0" % Test
-    )
-  )
+  .settings(Dependencies.core)
+  .settings(Dependencies.coreTest)
 
 lazy val optics = (project in file("optics"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "dev.optics" %% "monocle-core" % "3.2.0"
-    )
-  )
+  .settings(Dependencies.optics)
   .dependsOn(core)
 
 lazy val circe = (project in file("circe"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.circe"      %% "circe-core"   % "0.14.7",
-      "io.circe"      %% "circe-optics" % "0.15.0",
-      "io.circe"      %% "circe-parser" % "0.14.7" % Test,
-      "org.scalameta" %% "munit"        % "1.0.0"  % Test
-    )
-  )
+  .settings(Dependencies.circe)
+  .settings(Dependencies.circeTest)
   .dependsOn(optics)
 
 lazy val spray = (project in file("spray"))
-  .settings(
-    libraryDependencies ++= Seq(
-      "io.spray"            %% "spray-json"        % "1.3.6",
-      "io.github.greyplane" %% "spray-json-optics" % "0.1.7",
-      "org.scalameta"       %% "munit"             % "1.0.0" % Test
-    )
-  )
+  .settings(Dependencies.spray)
+  .settings(Dependencies.sprayTest)
   .dependsOn(optics)
 
 lazy val root = (project in file("."))
