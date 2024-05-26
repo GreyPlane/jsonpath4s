@@ -19,7 +19,7 @@ object CirceCompiler {
     jsonPlate = jsonPlated.plate
   )
 
-  val compiler: Compiler[Json, Vector] = Compiler(circeOpticsPrimitive)
+  val compiler: Compiler[Json] = Compiler(circeOpticsPrimitive)
 
   def apply(jsonPath: JsonPath): Fold[Json, Json] = compiler.compile(jsonPath)
 

@@ -18,7 +18,7 @@ object SprayCompiler {
     jsPlated.plate
   )
 
-  val compiler: Compiler[JsValue, Vector] = Compiler(sprayOpticsPrimitive)
+  val compiler: Compiler[JsValue] = Compiler(sprayOpticsPrimitive)
 
   def apply(jsonPath: JsonPath): Fold[JsValue, JsValue] = compiler.compile(jsonPath)
 

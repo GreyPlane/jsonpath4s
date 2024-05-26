@@ -16,7 +16,7 @@ final case class Primitive[Json, T[_]: Traverse](
 )
 
 @FunctionalInterface
-trait Compiler[Json, T[_]: Traverse] {
+trait Compiler[Json] {
 
   def compile(jsonPath: JsonPath): Fold[Json, Json] = combineAll(compileSegments(jsonPath.segments))
 
@@ -28,9 +28,9 @@ trait Compiler[Json, T[_]: Traverse] {
 
 object Compiler {
 
-  def apply[Json, T[_]: Traverse](primitive: Primitive[Json, T]): Compiler[Json, T] = {
+  def apply[Json, T[_]: Traverse](primitive: Primitive[Json, T]): Compiler[Json] = {
 
-    new Compiler[Json, T]:
+    new Compiler[Json]:
 
       def compileSelector(selector: Selector): Traversal[Json, Json] = selector match
         case Selector.Name(name)              => primitive.jsonObjectIndex(name)
