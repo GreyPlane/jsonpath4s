@@ -22,19 +22,11 @@ libraryDependencies ++= Seq(
 
  ```scala
 libraryDependencies ++= Seq(
-  "io.github.greyplane" %% "jsonpath4s-circe" % "version"
-)
-```
-
-for circe.
-
-```scala
-libraryDependencies ++= Seq(
+  "io.github.greyplane" %% "jsonpath4s-circe" % "version",
+  // or if you're using spray-json
   "io.github.greyplane" %% "jsonpath4s-spray-json" % "version"
 )
 ```
-
-for spray-json
 
 3. Add imports as needed, for typical usage the following should suffice.
 
