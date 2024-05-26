@@ -2,6 +2,8 @@ package jsonpath4s.circe
 
 import io.circe.Json
 import jsonpath4s.{JsonPath, JsonPathParser}
+import jsonpath4s.optics.*
+import jsonpath4s.circe.given
 import io.circe.parser.*
 import munit.Location
 import cats.implicits.given
@@ -11,7 +13,7 @@ import monocle.function.Plated
 class JsonPathCirceSuite extends munit.FunSuite {
 
   private def assertCompileResult(expect: Set[Json])(json: Json, jsonPath: JsonPath)(implicit loc: Location): Unit = {
-    val values = CirceCompiler(jsonPath).getAll(json)
+    val values = jsonPath.compile.getAll(json)
 
     assertEquals(values.toSet, expect)
   }
@@ -48,7 +50,7 @@ class JsonPathCirceSuite extends munit.FunSuite {
     inParseResult(json, """$..o""")(assertCompileResult(Set(Json.obj("j" -> Json.fromInt(1), "k" -> Json.fromInt(2)))))
 
     inParseResult(json, """$.o..[*,*]""") { (json, jsonPath) =>
-      println(CirceCompiler(jsonPath).getAll(json))
+      println(jsonPath.compile.getAll(json))
     }
   }
 

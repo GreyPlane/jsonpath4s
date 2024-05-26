@@ -1,6 +1,8 @@
 package jsonpath4s.spray
 
 import jsonpath4s.JsonPathParser
+import jsonpath4s.optics.*
+import jsonpath4s.spray.given
 import spray.json.*
 
 class JsonPathSpraySuite extends munit.FunSuite {
@@ -18,7 +20,7 @@ class JsonPathSpraySuite extends munit.FunSuite {
     JsonPathParser
       .quickRun("""$..j""")
       .map(jsonPath =>
-        val values                 = SprayCompiler(jsonPath).getAll(json).toSet
+        val values                 = jsonPath.compile.getAll(json).toSet
         val expected: Set[JsValue] = Set(JsNumber(1), JsNumber(4))
 
         assertEquals(values, expected)
