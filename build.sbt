@@ -4,7 +4,7 @@ import sbt.Keys.*
 
 val buildSettings = List(
   ThisBuild / scalaVersion := Dependencies.Scala3Version,
-  tlBaseVersion            := "0.1",
+  tlBaseVersion            := "0.0",
   tlSonatypeUseLegacyHost  := false,
   tlCiHeaderCheck          := false,
   tlCiMimaBinaryIssueCheck := false,
