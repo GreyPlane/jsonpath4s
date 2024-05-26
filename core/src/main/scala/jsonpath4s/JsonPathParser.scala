@@ -1,6 +1,5 @@
 package jsonpath4s
 
-import cats.implicits.given
 import org.parboiled2.*
 import org.parboiled2.support.hlist.*
 
@@ -103,11 +102,18 @@ class JsonPathParser(val input: ParserInput) extends Parser {
 }
 
 object JsonPathParser {
-  def quickRun(input: String): Either[String, JsonPath] = {
-    import Parser.DeliveryScheme.Either
 
+  import Parser.DeliveryScheme.Either
+
+  def parse(input: String): Either[JsonPathError, JsonPath] = {
     val parser = new JsonPathParser(input)
 
-    parser.jsonPath.run().leftMap(error => parser.formatError(error))
+    parser.jsonPath.run().left.map(err => JsonPathError.ParseError(parser.formatError(err)))
+  }
+
+  def unsafeParse(input: String): JsonPath = {
+    val parser = new JsonPathParser(input)
+
+    parser.jsonPath.run().fold(err => throw new RuntimeException(parser.formatError(err)), identity)
   }
 }

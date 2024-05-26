@@ -18,7 +18,7 @@ class JsonPathSpraySuite extends munit.FunSuite {
     }.parseJson
 
     JsonPathParser
-      .quickRun("""$..j""")
+      .parse("""$..j""")
       .map(jsonPath =>
         val values                 = jsonPath.compile.getAll(json).toSet
         val expected: Set[JsValue] = Set(JsNumber(1), JsNumber(4))

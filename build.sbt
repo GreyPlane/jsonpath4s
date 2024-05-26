@@ -6,7 +6,6 @@ lazy val core = (project in file("core"))
   .settings(
     libraryDependencies ++= Seq(
       "org.parboiled" %% "parboiled" % "2.5.1",
-      "org.typelevel" %% "cats-core" % "2.10.0",
       "org.scalameta" %% "munit"     % "1.0.0" % Test
     )
   )

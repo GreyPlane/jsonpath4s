@@ -19,7 +19,7 @@ class JsonPathCirceSuite extends munit.FunSuite {
   }
 
   private def inParseResult(json: String, jsonPath: String)(f: (Json, JsonPath) => Unit) = {
-    parse(json).map2(JsonPathParser.quickRun(jsonPath))(f)
+    parse(json).map2(JsonPathParser.parse(jsonPath))(f)
   }
 
   test("children segment") {
