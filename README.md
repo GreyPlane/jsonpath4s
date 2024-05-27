@@ -79,3 +79,33 @@ normal optic!
 // make sure you've import json support library
 val a: Fold[Json, Json] = jsonpath"$$.a".compile
 ```
+
+# Interesting(~~Advanced~~) Usage
+
+## Compose JsonPath
+
+Since they're just normal optics, there's nothing prevent you to compose them!
+
+```scala
+val a = jsonpath"$$.a".compile
+val b = jsonpath"$$.b".compile
+
+// it's equivalent to jsonpath"$$.a.b"
+a.andThen(b)
+```
+
+## Use as setter
+
+```scala 3
+// number of Traversal equals to the product of all segments' segment.selectors.size
+// in this case there's only 1 Traversal
+val ts: Seq[Traversal] = summon[Compiler[Json]].compileSegments(jsonpath"$$.a.*")
+
+// this will modify for example { "a": { "b": 1, "c": 2 } } to { "a": { "b": "test", "c": "test" } } 
+ts.map(_.modify(_ => Json.fromString("test"))(json))
+```
+
+But there's one gotcha, if your JsonPath contains descendants segment(`..`), it cannot be used as setter, since we
+use `uniplate`'s [cosmos](https://hackage.haskell.org/package/lens-5.2.3/docs/Control-Lens-Plated.html#v:cosmos)
+combinator, which should be a `Fold` rather than `Traversal`, but we implemented it as a `Traversal` to make use others
+as setter possible. 
