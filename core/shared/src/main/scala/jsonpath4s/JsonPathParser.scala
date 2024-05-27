@@ -52,7 +52,7 @@ class JsonPathParser(val input: ParserInput) extends Parser {
   }
 
   private def sliceSelector: Rule1[Selector] = rule {
-    (optional(int).named("slice selector start") ~ sliceSeparator ~ optional(int).named("slice selector end") ~ sliceSeparator ~ optional(int).named("slice select step"))
+    (optional(int).named("slice selector start") ~ sliceSeparator ~ optional(int).named("slice selector end") ~ optional(sliceSeparator ~ int.named("slice select step")))
       ~> Selector.Slice.apply
   }
 

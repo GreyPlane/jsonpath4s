@@ -65,4 +65,21 @@ class JsonPathCirceSuite extends munit.FunSuite {
     inParseResult(json, """$.a..[0,1]""")(assertCompileResult(Set(Json.fromInt(5), Json.fromInt(3), Json.obj("j" -> Json.fromInt(4)), Json.obj("k" -> Json.fromInt(6)))))
   }
 
+  test("slice selector") {
+    val json = """["a", "b", "c", "d", "e", "f", "g"]"""
+
+    inParseResult(json, """$[1:3]""")(assertCompileResult(Set(Json.fromString("b"), Json.fromString("c"))))
+
+    inParseResult(json, """$[5:]""")(assertCompileResult(Set(Json.fromString("f"), Json.fromString("g"))))
+
+    inParseResult(json, """$[1:5:2]""")(assertCompileResult(Set(Json.fromString("b"), Json.fromString("d"))))
+
+    inParseResult(json, """$[5:1:-2]""")(assertCompileResult(Set(Json.fromString("f"), Json.fromString("d"))))
+
+    inParseResult(json, """$[::-1]""")(
+      assertCompileResult(
+        Set(Json.fromString("g"), Json.fromString("f"), Json.fromString("e"), Json.fromString("d"), Json.fromString("c"), Json.fromString("b"), Json.fromString("a"))
+      )
+    )
+  }
 }
