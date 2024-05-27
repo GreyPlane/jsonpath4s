@@ -10,7 +10,8 @@ val buildSettings = List(
   tlCiMimaBinaryIssueCheck := false,
   tlMimaPreviousVersions   := Set.empty,
   tlCiDocCheck             := false,
-  tlCiReleaseBranches      := Seq("master")
+  tlCiReleaseBranches      := Seq("master"),
+  tlCiDependencyGraphJob   := false
 )
 
 val publishSettings = List(
