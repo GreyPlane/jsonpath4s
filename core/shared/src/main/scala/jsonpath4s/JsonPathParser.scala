@@ -1,5 +1,6 @@
 package jsonpath4s
 
+import jsonpath4s.BinaryOperator.{And, Or}
 import org.parboiled2.*
 import org.parboiled2.support.hlist.*
 
@@ -14,8 +15,11 @@ class JsonPathParser(val input: ParserInput) extends Parser {
   @unused private val segmentSeparator = '.'
   private val sliceSeparator           = ':'
 
-  private def root: Rule1[Identifier]            = rule { '$' ~ push(Identifier.Root) }
-  @unused private def current: Rule1[Identifier] = rule { '@' ~ push(Identifier.Current) }
+  private def root: Rule1[Identifier] = rule { '$' ~ push(Identifier.Root) }
+
+  private def whitespaces: Rule0 = rule {
+    zeroOrMore(ch(' '))
+  }
 
   private def esc = rule {
     backslash
@@ -44,8 +48,12 @@ class JsonPathParser(val input: ParserInput) extends Parser {
     ch('*') ~ push(Selector.Wildcard)
   }
 
+  private def intString: Rule1[String] = rule {
+    capture(CharPredicate.Digit19 ~ zeroOrMore(CharPredicate.Digit))
+  }
+
   private def int: Rule1[Int] = rule {
-    capture(CharPredicate.Digit19 ~ zeroOrMore(CharPredicate.Digit)) ~> (_.mkString.toInt)
+    intString ~> (_.mkString.toInt)
   }
   private def indexSelector: Rule1[Selector] = rule {
     (ch('0') ~ push(0) | int | '-' ~ int) ~> Selector.Index.apply
@@ -56,9 +64,126 @@ class JsonPathParser(val input: ParserInput) extends Parser {
       ~> Selector.Slice.apply
   }
 
+  private def not: Rule1[UnaryOperator] = rule {
+    ch('!') ~ push(UnaryOperator.Not)
+  }
+
+  private def reduceNot(maybeOp: Option[UnaryOperator], expr: Expr) = maybeOp.fold(expr)(op => Expr.UnaryOp(op, expr))
+
+  private def parenExpr: Rule1[Expr] = rule {
+    (optional(not) ~ '(' ~ logicalExpr ~ ')') ~> reduceNot
+  }
+
+  private def reduceAnd(exprs: Seq[Expr]) = exprs.reduce { (e1, e2) => Expr.BinOp(e1, And, e2) }
+
+  private def and: Rule1[Expr] = rule {
+    ((whitespaces ~ basicExpr) + (whitespaces ~ str("&&"))) ~> reduceAnd
+  }
+
+  private def reduceOr(exprs: Seq[Expr]) = exprs.reduce { (e1, e2) => Expr.BinOp(e1, Or, e2) }
+
+  private def or: Rule1[Expr] = rule {
+    ((whitespaces ~ and) + (whitespaces ~ str("||"))) ~> reduceOr
+  }
+
+  private def filterQuery: Rule1[Expr] = rule {
+    (relQuery | absQuery) ~> Expr.Exist.apply
+  }
+
+  private def absQuery: Rule1[Query] = rule {
+    jsonPath ~> Query.Absolute.apply
+  }
+
+  private def relQuery: Rule1[Query] = rule {
+    (ch('@') ~ zeroOrMore(segment)) ~> Query.Relative.apply
+  }
+
+  private def testExpr: Rule1[Expr] = rule {
+    (optional(not) ~ whitespaces ~ (filterQuery | functionExpr)) ~> reduceNot
+  }
+
+  private def frac: Rule1[String] = rule {
+    capture(ch('.') ~ oneOrMore(CharPredicate.Digit))
+  }
+
+  private def exp: Rule1[String] = rule {
+    capture(ch('e') ~ optional(ch('-') | ch('+')) ~ oneOrMore(CharPredicate.Digit))
+  }
+
+  private def reduceNumber(integer: String, maybeFrac: Option[String], maybeExp: Option[String]) = {
+    BigDecimal(integer ++ maybeFrac.getOrElse("") ++ maybeExp.getOrElse(""))
+  }
+
+  private def number: Rule1[Value] = rule {
+    (intString | (str("-0") ~ push("0"))) ~ optional(frac) ~ optional(exp) ~> reduceNumber ~> Value.Num.apply
+  }
+
+  private def literal: Rule1[Expr] = rule {
+    (number | (stringLiteral ~> Value.Str.apply) | (str("true") ~ push(Value.True)) | (str("false") ~ push(Value.False)) | (str("null") ~ push(
+      Value.Null
+    ))) ~> Expr.Val.apply
+  }
+
+  private def nameSegment: Rule1[Segment] = rule {
+    (ch('[') ~ nameSelector ~ ']' | ch('.') ~ memberNameShorthandNameSelector) ~> { selector => Segment.Children(Seq(selector)) }
+  }
+
+  private def indexSegment: Rule1[Segment] = rule {
+    (ch('[') ~ indexSelector ~ ']') ~> { selector => Segment.Children(Seq(selector)) }
+  }
+
+  private def singularQuerySegments: Rule1[Seq[Segment]] = rule {
+    zeroOrMore(whitespaces ~ (nameSegment | indexSegment))
+  }
+
+  private def relSingularQuery: Rule1[Query] = rule {
+    (ch('@') ~ singularQuerySegments) ~> Query.Relative.apply
+  }
+
+  private def absSingularQuery: Rule1[Query] = rule {
+    (ch('$') ~ singularQuerySegments) ~> { segments => Query.Absolute(JsonPath(Identifier.Root, segments)) }
+  }
+
+  private def singularQuery: Rule1[Query] = rule {
+    relSingularQuery | absSingularQuery
+  }
+
+  private def comparable: Rule1[Expr] = rule {
+    literal | (singularQuery ~> { query => Expr.Val(Value.Dynamic(query)) }) | functionExpr
+  }
+
+  private def comparisonOps: Rule1[BinaryOperator] = rule {
+    (str("==") ~ push(BinaryOperator.Eq)) | (str("!=") ~ push(BinaryOperator.NotEq)) | (str("<=") ~ push(BinaryOperator.LessEq))
+      | (str(">=") ~ push(BinaryOperator.GreaterEq)) | (str("<") ~ push(BinaryOperator.Less)) | (str(">") ~ push(BinaryOperator.Greater))
+  }
+
+  private def comparisonExpr: Rule1[Expr] = rule {
+    (comparable ~ whitespaces ~ comparisonOps ~ whitespaces ~ comparable) ~> Expr.BinOp.apply
+  }
+
+  private def functionName: Rule1[String] = rule {
+    capture(CharPredicate.LowerAlpha | zeroOrMore(CharPredicate.LowerAlpha | '_' | CharPredicate.Digit))
+  }
+
+  private def functionArgument: Rule1[Expr] = rule {
+    literal | filterQuery | functionExpr | logicalExpr
+  }
+
+  private def functionExpr: Rule1[Expr] = rule {
+    (functionName ~ '(' ~ whitespaces ~ (functionArgument * (ch(',') ~ whitespaces)) ~ whitespaces ~ ')') ~> Expr.Apply.apply
+  }
+
+  private def basicExpr: Rule1[Expr] = rule {
+    parenExpr | comparisonExpr | testExpr
+  }
+
+  private def logicalExpr: Rule1[Expr] = rule {
+    or
+  }
+
   private def filterSelector: Rule1[Selector] = rule {
     // TODO Implement me
-    ('?' ~ capture(CharPredicate.All)) ~> Selector.Filter.apply
+    ('?' ~ whitespaces ~ logicalExpr) ~> Selector.Filter.apply
   }
 
   private def selector: Rule1[Selector] = rule {

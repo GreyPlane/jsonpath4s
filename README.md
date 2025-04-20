@@ -5,7 +5,11 @@ and use it freely.
 
 ## Roadmap
 
-- Support filter and function extension.
+- Support function extension.
+
+## Known limitation
+
+- Absolute query is not supported when using filter syntax.
 
 ## Usage
 

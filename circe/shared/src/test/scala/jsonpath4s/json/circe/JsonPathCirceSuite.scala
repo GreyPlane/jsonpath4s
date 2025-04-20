@@ -26,7 +26,9 @@ class JsonPathCirceSuite extends munit.FunSuite {
   }
 
   private def inParseResult(json: String, jsonPath: String)(f: (Json, JsonPath) => Unit) = {
-    parse(json).map2(JsonPathParser.parse(jsonPath))(f)
+    val path   = JsonPathParser.parse(jsonPath)
+    val result = parse(json).map2(path)(f)
+    assert(result.isRight)
   }
 
   test("child segment") {
@@ -81,5 +83,23 @@ class JsonPathCirceSuite extends munit.FunSuite {
         Set(Json.fromString("g"), Json.fromString("f"), Json.fromString("e"), Json.fromString("d"), Json.fromString("c"), Json.fromString("b"), Json.fromString("a"))
       )
     )
+  }
+
+  test("filter selector") {
+    val json = """{
+                 |  "a": [3, 5, 1, 2, 4, 6,
+                 |        {"b": "j"},
+                 |        {"b": "k"},
+                 |        {"b": {}},
+                 |        {"b": "kilo"}
+                 |       ],
+                 |  "o": {"p": 1, "q": 2, "r": 3, "s": 5, "t": {"u": 6}},
+                 |  "e": "f"
+                 |}""".stripMargin
+
+    inParseResult(json, """$.a[?@.b]""") { case (j, path) =>
+      val result = path.compile.getAll(j)
+      println(result)
+    }
   }
 }

@@ -8,16 +8,16 @@ object Dependencies {
 
   import PlatformDepsPlugin.autoImport.*
 
-  val Scala213Version        = "2.13.14"
-  val Scala3Version          = "3.4.2"
+  val Scala213Version        = "2.13.16"
+  val Scala3Version          = "3.6.4"
   val SupportedScalaVersions = Seq(Scala213Version, Scala3Version)
 
   object Versions {
-    val munit           = "1.0.0"
+    val munit           = "1.1.0"
     val parboiled       = "2.5.1"
-    val cats            = "2.10.0"
-    val monocle         = "3.2.0"
-    val circe           = "0.14.7"
+    val cats            = "2.13.0"
+    val monocle         = "3.3.0"
+    val circe           = "0.14.12"
     val circeOptics     = "0.15.0"
     val sprayJson       = "1.3.6"
     val sprayJsonOptics = "0.1.7"

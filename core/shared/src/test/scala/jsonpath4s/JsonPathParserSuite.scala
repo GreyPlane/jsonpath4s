@@ -40,4 +40,9 @@ class JsonPathParserSuite extends munit.FunSuite {
     )
   }
 
+  test("filter") {
+    val result = JsonPathParser.parse("""$[?@.*]""")
+
+    println(result)
+  }
 }
