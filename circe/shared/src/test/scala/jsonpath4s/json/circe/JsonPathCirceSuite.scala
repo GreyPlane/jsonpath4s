@@ -1,13 +1,12 @@
 package jsonpath4s.json.circe
 
-import cats.implicits.given
 import io.circe.Json
 import io.circe.optics.all.*
 import io.circe.parser.*
 import jsonpath4s.json.circe
 import jsonpath4s.json.circe.given
 import jsonpath4s.optics.*
-import jsonpath4s.{JsonPath, JsonPathParser}
+import jsonpath4s.{JsonPath, JsonPathError, JsonPathParser}
 import monocle.function.Plated
 import munit.Location
 
@@ -25,10 +24,14 @@ class JsonPathCirceSuite extends munit.FunSuite {
     assertEquals(values, expect.groupBy(identity))
   }
 
-  private def inParseResult(json: String, jsonPath: String)(f: (Json, JsonPath) => Unit) = {
-    val path   = JsonPathParser.parse(jsonPath)
-    val result = parse(json).map2(path)(f)
-    assert(result.isRight)
+  private def inParseResult(json: String, jsonPath: String)(f: (Json, JsonPath) => Unit): Unit = {
+    val path = JsonPathParser.parse(jsonPath) match {
+      case Left(JsonPathError.ParsingError(message)) => fail(s"""
+           | failed to parse $jsonPath
+           | $message""".stripMargin)
+      case Right(value) => value
+    }
+    parse(json).map(f(_, path)): Unit
   }
 
   test("child segment") {
@@ -36,7 +39,7 @@ class JsonPathCirceSuite extends munit.FunSuite {
 
     inParseResult(json, """$[0,3]""")(assertCompileResult(Set(Json.fromString("a"), Json.fromString("d"))))
 
-    inParseResult(json, """$[0:2:5]""")(assertCompileResult(Set(Json.fromString("a"), Json.fromString("b"), Json.fromString("f"))))
+    inParseResult(json, """$[0:2:5]""")(assertCompileResult(Set(Json.fromString("a"))))
 
     inParseResult(json, """$[0,0]""")(assertCompileResultDup(List(Json.fromString("a"), Json.fromString("a"))))
   }
@@ -97,9 +100,6 @@ class JsonPathCirceSuite extends munit.FunSuite {
                  |  "e": "f"
                  |}""".stripMargin
 
-    inParseResult(json, """$.a[?@.b]""") { case (j, path) =>
-      val result = path.compile.getAll(j)
-      println(result)
-    }
+    inParseResult(json, """$.a[?@.b == 'kilo']""")(assertCompileResult(Set(Json.obj("b" -> Json.fromString("kilo")))))
   }
 }

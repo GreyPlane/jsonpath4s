@@ -1,7 +1,6 @@
 package jsonpath4s.optics
 
 import cats.PartialOrder
-import cats.instances.vector.given
 import cats.syntax.apply.given
 import cats.syntax.partialOrder.given
 import jsonpath4s.*

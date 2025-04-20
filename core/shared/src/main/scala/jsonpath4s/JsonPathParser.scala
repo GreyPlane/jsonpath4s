@@ -48,19 +48,23 @@ class JsonPathParser(val input: ParserInput) extends Parser {
     ch('*') ~ push(Selector.Wildcard)
   }
 
-  private def intString: Rule1[String] = rule {
+  private def digits: Rule1[String] = rule {
     capture(CharPredicate.Digit19 ~ zeroOrMore(CharPredicate.Digit))
   }
 
+  private def negativeDigits: Rule1[String] = rule {
+    (ch('-') ~ digits) ~> (_.prepended('-'))
+  }
+
   private def int: Rule1[Int] = rule {
-    intString ~> (_.mkString.toInt)
+    (capture(str("0")) | digits | negativeDigits) ~> (_.toInt)
   }
   private def indexSelector: Rule1[Selector] = rule {
-    (ch('0') ~ push(0) | int | '-' ~ int) ~> Selector.Index.apply
+    int ~> Selector.Index.apply
   }
 
   private def sliceSelector: Rule1[Selector] = rule {
-    (optional(int).named("slice selector start") ~ sliceSeparator ~ optional(int).named("slice selector end") ~ optional(sliceSeparator ~ int.named("slice select step")))
+    (optional(int).named("slice selector start") ~ sliceSeparator ~ optional(int).named("slice selector end") ~ optional(sliceSeparator ~ int).named("slice select step"))
       ~> Selector.Slice.apply
   }
 
@@ -115,7 +119,7 @@ class JsonPathParser(val input: ParserInput) extends Parser {
   }
 
   private def number: Rule1[Value] = rule {
-    (intString | (str("-0") ~ push("0"))) ~ optional(frac) ~ optional(exp) ~> reduceNumber ~> Value.Num.apply
+    (digits | (str("-0") ~ push("0"))) ~ optional(frac) ~ optional(exp) ~> reduceNumber ~> Value.Num.apply
   }
 
   private def literal: Rule1[Expr] = rule {
@@ -187,7 +191,7 @@ class JsonPathParser(val input: ParserInput) extends Parser {
   }
 
   private def selector: Rule1[Selector] = rule {
-    nameSelector | wildcardSelector | sliceSelector | indexSelector | filterSelector
+    nameSelector.named("Name Selector") | wildcardSelector | sliceSelector.named("Slice") | indexSelector | filterSelector
   }
 
   private def nameFirst = rule {
