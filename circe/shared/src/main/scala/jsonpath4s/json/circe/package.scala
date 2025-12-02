@@ -5,7 +5,6 @@ import cats.syntax.apply.given
 import cats.syntax.eq.given
 import io.circe.Json as CirceJson
 import io.circe.optics.all as circeOptics
-import jsonpath4s.optics
 import jsonpath4s.optics.{Compiler, Json, JsonOptics}
 import monocle.*
 import monocle.function.Index
