@@ -2,7 +2,6 @@ import jsonpath4s.Dependencies
 
 import sbt.Keys.*
 
-
 val buildSettings = List(
   scalacOptions ++= Seq("-Wall"),
   scalaVersion             := Dependencies.Scala3Version,
