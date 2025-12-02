@@ -2,9 +2,9 @@ import jsonpath4s.Dependencies
 
 import sbt.Keys.*
 
+
 val buildSettings = List(
   scalacOptions ++= Seq("-Wall"),
-  sonatypeCredentialHost   := xerial.sbt.Sonatype.sonatype01,
   scalaVersion             := Dependencies.Scala3Version,
   tlBaseVersion            := "0.0",
   tlCiHeaderCheck          := false,
