@@ -1,5 +1,3 @@
-import jsonpath4s.Dependencies
-
 import sbt.Keys.*
 
 val buildSettings = List(

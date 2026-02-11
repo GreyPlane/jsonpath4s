@@ -1,5 +1,3 @@
-package jsonpath4s
-
 import sbt.Keys.*
 import sbt.*
 import org.portablescala.sbtplatformdeps.*
@@ -9,7 +7,7 @@ object Dependencies {
   import PlatformDepsPlugin.autoImport.*
 
   val Scala213Version        = "2.13.17"
-  val Scala3Version          = "3.7.4"
+  val Scala3Version          = "3.8.1"
   val SupportedScalaVersions = Seq(Scala213Version, Scala3Version)
 
   object Versions {
