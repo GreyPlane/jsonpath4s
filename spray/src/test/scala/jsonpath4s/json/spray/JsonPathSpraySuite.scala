@@ -26,6 +26,10 @@ class JsonPathSpraySuite extends munit.FunSuite {
         assertEquals(values, expected)
       )
 
+    import compiletime.*
+    
+    val p = Macro.parse("""1$.x""")
+    
   }
 
 }
